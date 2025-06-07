@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Advanced Budget Planner</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f9f9f9; }
+    input, select, button { margin: 5px; padding: 5px; }
+    table { margin-top: 10px; width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px; border: 1px solid #ccc; }
+    .summary { margin-top: 15px; font-weight: bold; }
+    .flex { display: flex; flex-wrap: wrap; gap: 10px; }
+  </style>
+</head>
+<body>
+
+<h2>Budget Planner (Weekly $100)</h2>
+
+<h3>If something is to be paid within a month, select Same month for start and end</h3>
+
+<div class="flex">
+  <input type="text" id="itemName" placeholder="Item name">
+  <input type="number" id="itemAmount" placeholder="Total owed" step="0.01">
+  <select id="itemCategory">
+    <option value="Leisure">Leisure</option>
+    <option value="Entertainment">Entertainment</option>
+    <option value="Food">Food</option>
+    <option value="Utilities">Utilities</option>
+    <option value="Clothing">Clothing</option>
+    <option value="Other">Other</option>
+  </select>
+  <select id="startMonth">
+    <option disabled selected>Start Month</option>
+  </select>
+  <select id="endMonth">
+    <option disabled selected>End Month</option>
+  </select>
+  <button onclick="addItem()">Add Item</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>Amount ($)</th>
+      <th>Category</th>
+      <th>Months</th>
+      <th>Weekly Payment ($)</th>
+    </tr>
+  </thead>
+  <tbody id="budgetTable"></tbody>
+</table>
+
+<div class="summary" id="summary"></div>
+
+<canvas id="chart" height="150"></canvas>
+
+<script>
+  const weeklyPocketMoney = 100;
+  const monthList = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const categoryTotals = {};
+  const ctx = document.getElementById('chart').getContext('2d');
+  let chart;
+
+  // Populate months
+  const startMonthSel = document.getElementById("startMonth");
+  const endMonthSel = document.getElementById("endMonth");
+  monthList.forEach((m, i) => {
+    startMonthSel.innerHTML += `<option value="${i}">${m}</option>`;
+    endMonthSel.innerHTML += `<option value="${i}">${m}</option>`;
+  });
+
+  function addItem() {
+    const name = document.getElementById("itemName").value.trim();
+    const amount = parseFloat(document.getElementById("itemAmount").value);
+    const category = document.getElementById("itemCategory").value;
+    const startMonth = parseInt(startMonthSel.value);
+    const endMonth = parseInt(endMonthSel.value);
+
+    if (!name || isNaN(amount) || isNaN(startMonth) || isNaN(endMonth) || startMonth > endMonth) {
+      alert("Please enter valid details.");
+      return;
+    }
+
+    const totalWeeks = (endMonth - startMonth + 1) * 4; // Approx. 4 weeks per month
+    const weeklyPayment = amount / totalWeeks;
+
+    // Add row
+    const table = document.getElementById("budgetTable");
+    const row = table.insertRow();
+    row.insertCell(0).innerText = name;
+    row.insertCell(1).innerText = amount.toFixed(2);
+    row.insertCell(2).innerText = category;
+    row.insertCell(3).innerText = `${monthList[startMonth]} to ${monthList[endMonth]}`;
+    row.insertCell(4).innerText = weeklyPayment.toFixed(2);
+
+    // Update category total
+    if (!categoryTotals[category]) categoryTotals[category] = 0;
+    categoryTotals[category] += weeklyPayment;
+
+    updateSummary();
+    updateChart();
+    clearInputs();
+  }
+
+  function updateSummary() {
+    const totalWeekly = Object.values(categoryTotals).reduce((a, b) => a + b, 0);
+    const leftover = weeklyPocketMoney - totalWeekly;
+    document.getElementById("summary").innerHTML = `
+      Total Weekly Commitment: $${totalWeekly.toFixed(2)}<br>
+      Remaining from $100: $${leftover.toFixed(2)}
+    `;
+  }
+
+  function updateChart() {
+    const labels = Object.keys(categoryTotals);
+    const data = Object.values(categoryTotals);
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Weekly Spending by Category',
+          data,
+          backgroundColor: ['#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0', '#9966ff'],
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' },
+        }
+      }
+    });
+  }
+
+  function clearInputs() {
+    document.getElementById("itemName").value = "";
+    document.getElementById("itemAmount").value = "";
+    startMonthSel.selectedIndex = 0;
+    endMonthSel.selectedIndex = 0;
+  }
+</script>
+
+</body>
+</html>
