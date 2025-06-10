@@ -15,9 +15,9 @@
 </head>
 <body>
 
-<h2>Budget Planner</h2>
+<h2>Budget Planner!</h2>
 
-<input type="number" id="weeklyBudget" placeholder="Weekly budget" onclick="weeklyPocketMoney">
+<input type="number" id="weeklyBudget" placeholder="Weekly budget">
 
 <h3>If something is to be paid within a month, select Same month for start and end</h3>
 
@@ -59,7 +59,7 @@
 <canvas id="chart" height="150"></canvas>
 
 <script>
-  const weeklyPocketMoney = NaN;
+  let weeklyPocketMoney = NaN;
   const monthList = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -84,7 +84,7 @@
     {
       weeklyPocketMoney = document.getElementById("weeklyBudget").value.trim();
     }
-    if (isNaN(weeklyPocketMoney)) {
+    if (isNaN(weeklyPocketMoney) || weeklyPocketMoney <= 0) {
         alert("Please enter weekly budget");
         return;
       }
