@@ -69,7 +69,7 @@
   const ctx = document.getElementById('chart').getContext('2d');
   let chart;
 
-  // Populate months
+  // Populate the months
   const startMonthSel = document.getElementById("startMonth");
   const endMonthSel = document.getElementById("endMonth");
   monthList.forEach((m, i) => {
@@ -79,7 +79,9 @@
 
   function addItem() {
 
-    function setWeeklyBudget() {
+    //adding weekly budget to local variable
+    function setWeeklyBudget() 
+    {
       weeklyPocketMoney = document.getElementById("weeklyBudget").value.trim();
     }
     if (isNaN(weeklyPocketMoney)) {
@@ -97,10 +99,8 @@
       return;
     }
 
-    const totalWeeks = (endMonth - startMonth + 1) * 4; // Approx. 4 weeks per month
+    const totalWeeks = (endMonth - startMonth + 1) * 4; // approximately 4 weeks a month
     const weeklyPayment = amount / totalWeeks;
-
-    // Add row
     const table = document.getElementById("budgetTable");
     const row = table.insertRow();
     row.insertCell(0).innerText = name;
@@ -108,8 +108,6 @@
     row.insertCell(2).innerText = category;
     row.insertCell(3).innerText = `${monthList[startMonth]} to ${monthList[endMonth]}`;
     row.insertCell(4).innerText = weeklyPayment.toFixed(2);
-
-    // Update category total
     if (!categoryTotals[category]) categoryTotals[category] = 0;
     categoryTotals[category] += weeklyPayment;
 
